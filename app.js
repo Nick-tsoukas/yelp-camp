@@ -23,21 +23,6 @@ var Campground = mongoose.model("Campground", campgroundSchema);
 //    }
 //  });
 
-var campgrounds = [
-  {name: "Salmon Creek", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"},
-  {name: "Granite Hill", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"},
-  {name: "Yogi Bear", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"},
-  {name: "Salmon Creek", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"},
-  {name: "Granite Hill", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"},
-  {name: "Yogi Bear", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"},
-  {name: "Salmon Creek", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"},
-  {name: "Granite Hill", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"},
-  {name: "Yogi Bear", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"},
-  {name: "Salmon Creek", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"},
-  {name: "Granite Hill", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"},
-  {name: "Yogi Bear", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"}
-];
-
 app.use(bodyParser.urlencoded({extended: true}));
 app.set('view engine', 'ejs');
 
@@ -68,8 +53,13 @@ app.post("/campgrounds", function(req,res) {
     name: name,
     image: image
   };
-  campgrounds.push(newCampground);
-  res.redirect("/campgrounds");
+  Campground.create(newCampground, function(err, newlyCreated){
+    if(err){
+      console.log(err);
+    } else {
+      res.redirect("/campgrounds");
+    }
+  })
 });
 
 app.listen(3000, function(){
