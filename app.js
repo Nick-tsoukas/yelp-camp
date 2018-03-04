@@ -1,7 +1,27 @@
-var express = require('express');
-var request = require('request');
-var app = express();
-var bodyParser = require('body-parser');
+var express    = require('express'),
+    request    = require('request'),
+    app        = express(),
+    bodyParser = require('body-parser'),
+    mongoose   = require("mongoose");
+
+mongoose.connect("mongodb://localhost/yelp_camp");
+
+var campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String
+});
+
+var Campground = mongoose.model("Campground", campgroundSchema);
+
+// Campground.create(    {name: "Granite Hill", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"},
+//  function(err, campground) {
+//    if(err){
+//      console.log(err);
+//    } else {
+//      console.log("Newly created campground");
+//      console.log(campground);
+//    }
+//  });
 
 var campgrounds = [
   {name: "Salmon Creek", image: "https://www.campsitephotos.com/photo/camp/8736/Serrano_001.jpg"},
@@ -26,7 +46,13 @@ app.get("/", function(req, res) {
 });
 
 app.get("/campgrounds", function(req,res) {
-  res.render('campgrounds',{campgrounds: campgrounds});
+  Campground.find({}, function(err,allCampgrounds){
+    if(err){
+      console.log(err);
+    } else {
+      res.render("campgrounds",{campgrounds: allCampgrounds})
+    }
+  });
 });
 
 app.get("/campgrounds/new",function(req,res){
