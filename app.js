@@ -132,26 +132,49 @@ app.post("/campgrounds/:id/comments", function(req, res) {
   })
 });
 
-//AUTH ROUTES
 
-app.get("/register", (req, res) => {
-  res.render("register")
+// show register form
+app.get("/register", function(req, res){
+   res.render("register");
+});
+//handle sign up logic
+app.post("/register", function(req, res){
+    var newUser = new User({username: req.body.username});
+    User.register(newUser, req.body.password, function(err, user){
+        if(err){
+            console.log(err);
+            return res.render("register");
+        }
+        passport.authenticate("local")(req, res, function(){
+           res.redirect("/campgrounds");
+        });
+    });
 });
 
-app.post("/register", (req,res) => {
-  var newUser = new User({username: req.body.username});
-  User.register(newUser, req.body.password, (err, user) => {
-    if(err){
-      return res.render("/register");
+// show login form
+app.get("/login", function(req, res){
+   res.render("login");
+});
+// handling login logic
+app.post("/login", passport.authenticate("local",
+    {
+        successRedirect: "/campgrounds",
+        failureRedirect: "/login"
+    }), function(req, res){
+});
+
+// logic route
+app.get("/logout", function(req, res){
+   req.logout();
+   res.redirect("/campgrounds");
+});
+
+function isLoggedIn(req, res, next){
+    if(req.isAuthenticated()){
+        return next();
     }
-    passport.authenticate("local")(req,res, function() {
-      res.redirect("/campgrounds");
-    })
-  });
-});
-
-//handel signup logic
-
+    res.redirect("/login");
+}
 
 app.listen(3000, function(){
   console.log('the server has started')
