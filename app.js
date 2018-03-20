@@ -1,10 +1,3 @@
-  // INDEX   /campground       GET
-  // NEW     /campground/new   GET
-  // NEW     /campground/:id/comments/new GET
-  // CREATE  /campgrounds      POST
-  // CREATE  /campgrounds/:id/comments    POST
-  // SHOW    /campground:id    GET
-
 var express    = require('express'),
     request    = require('request'),
     app        = express(),
@@ -16,6 +9,8 @@ var express    = require('express'),
     Comment    = require("./models/comment"),
     User       = require("./models/user"),
     seedDB     = require("./seeds");
+
+    //var commentRoutes = require("./routs/comments");
 
 //APP CONFIG
 mongoose.connect("mongodb://localhost/yelp_camp");
@@ -36,12 +31,22 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+app.use(function(req,res,next) {
+  res.locals.currentUser = req.user;
+  next();
+})
+
+// =================
+// CAMPGROUND ROUTES
+// =================
 app.get("/", function(req, res) {
   res.render('landing');
 });
 
 // Index route gets all campgrounds
 app.get("/campgrounds", function(req,res) {
+  //passport will put data in req.user
+
   //get all campgrounds from DB
   //campgrounds is defined in callback : allcampgrounds
   Campground.find({}, function(err,allCampgrounds){
@@ -49,7 +54,7 @@ app.get("/campgrounds", function(req,res) {
       console.log(err);
     } else {
       //campgrounds is the new name of allCamgrounds
-      res.render("campgrounds/index",{campgrounds: allCampgrounds})
+      res.render("campgrounds/index",{campgrounds: allCampgrounds, currentUser: req.user})
     }
   });
 });
@@ -89,10 +94,14 @@ app.get("/campgrounds/:id", function(req, res){
       console.log(err);
     } else {
       console.log('foundCampground')
-      res.render("campgrounds/show", {campground: foundCampground});
+      res.render("campgrounds/show", {campground: foundCampground, currentUser: req.user});
     }
   });
-})
+});
+
+// ====
+// END OF CAMPGROUND ROUTES
+// ====
 
 // ==================
 // COMMENTS ROUTES
@@ -104,12 +113,12 @@ app.get("/campgrounds/:id/comments/new", isLoggedIn, function(req,res) {
     if(err){
       console.log(err);
     } else {
-      res.render("comments/new",{campground: campground});
+      res.render("comments/new",{campground: campground, currentUser: req.user});
     }
   })
 });
 
-app.post("/campgrounds/:id/comments", function(req, res) {
+app.post("/campgrounds/:id/comments", isLoggedIn, function(req, res) {
   // lookup campground using // Id
   // create new comments
   // connect new comment to campground
@@ -132,6 +141,14 @@ app.post("/campgrounds/:id/comments", function(req, res) {
   })
 });
 
+// ====
+// END OF COMMENT ROUTES
+// ====
+
+
+// ================
+// REGISTER SIGN UP ROUTES
+// ================
 
 // show register form
 app.get("/register", function(req, res){
@@ -151,6 +168,16 @@ app.post("/register", function(req, res){
     });
 });
 
+
+// ====
+// END OF REGISTER ROUTES
+// ====
+
+
+// =======================
+// LOGIN ROUTES
+// =======================
+
 // show login form
 app.get("/login", function(req, res){
    res.render("login");
@@ -169,6 +196,10 @@ app.get("/logout", function(req, res) {
    res.redirect("/campgrounds");
 });
 
+// ====
+// END
+// ====
+
 function isLoggedIn(req, res, next){
     if(req.isAuthenticated()){
         return next();
@@ -179,3 +210,14 @@ function isLoggedIn(req, res, next){
 app.listen(3000, function(){
   console.log('the server has started')
 });
+
+// ====
+// NOTES
+// ====
+
+// INDEX   /campground       GET
+// NEW     /campground/new   GET
+// NEW     /campground/:id/comments/new GET
+// CREATE  /campgrounds      POST
+// CREATE  /campgrounds/:id/comments    POST
+// SHOW    /campground:id    GET
