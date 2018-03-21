@@ -4,10 +4,11 @@
 <img src="<%=campground.image%>" alt="">
 
 <p> <%= campground.description %> </p>
+<p>Submitted By <%= campground.author.username %> </p>
 
 <% campground.comments.forEach(function(comment) { %>
     <p>
-      <strong> <%= comment.author %> </strong> - <%= comment.text %>
+      <strong> <%= comment.author.username %> </strong> - <%= comment.text %>
     </p>
 <% }); %>
 
