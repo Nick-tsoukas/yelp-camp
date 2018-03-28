@@ -47,6 +47,8 @@ function isLoggedIn(req, res, next){
     res.redirect("/login");
 }
 
+var imageArray =  ["https://images.unsplash.com/photo-1496222994535-5f1f76905ea4?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=ec9d056b16a1e48586d10a1b5bd837bb&auto=format&fit=crop&w=800&q=60"]
+
 app.use("/campgrounds/:id/comments", commentRoutes);
 app.use("/campgrounds", campgroundRoutes);
 app.use(authRoutes);
